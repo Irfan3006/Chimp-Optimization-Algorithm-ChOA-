@@ -65,20 +65,21 @@ Untuk menghilangkan perbedaan satuan dan skala antar kriteria, dilakukan normali
 
 ### a. Kriteria Harga (Cost - Minimisasi)
 Menggunakan rumus min-max invers agar nilai harga terendah mendapatkan skor normalisasi mendekati $1$, sedangkan harga tertinggi mendekati $0$:
-$$Harga\_N_i = 1 - \frac{Harga_i - Harga_{min}}{Harga_{max} - Harga_{min}}$$
+$$\text{Harga\_N}_i = 1 - \frac{\text{Harga}_i - \text{Harga}_{\min}}{\text{Harga}_{\max} - \text{Harga}_{\min}}$$
 
 ### b. Kriteria Kuota (Benefit - Maksimisasi)
 Menggunakan rumus min-max standar:
-$$Kuota\_N_i = \frac{Kuota_i - Kuota_{min}}{Kuota_{max} - Kuota_{min}}$$
+$$\text{Kuota\_N}_i = \frac{\text{Kuota}_i - \text{Kuota}_{\min}}{\text{Kuota}_{\max} - \text{Kuota}_{\min}}$$
 
 ### c. Kriteria Masa Aktif (Benefit)
 Normalisasi disesuaikan dengan nilai referensi batas atas (30 hari):
-$$MasaAktif\_N_i = \min\left(\frac{MasaAktif_i}{30}, 1.0\right)$$
+$$\text{MasaAktif\_N}_i = \min\left(\frac{\text{MasaAktif}_i}{30}, 1.0\right)$$
 
 ### d. Kriteria Jaringan dan Bonus (Benefit)
 Karena menggunakan rating skala 1 hingga 10, normalisasi dilakukan dengan pembagian skala maksimum:
-$$Jaringan\_N_i = \frac{Jaringan_i}{10}$$
-$$Bonus\_N_i = \frac{Bonus_i}{10}$$
+$$\text{Jaringan\_N}_i = \frac{\text{Jaringan}_i}{10}$$
+$$\text{Bonus\_N}_i = \frac{\text{Bonus}_i}{10}$$
+
 
 ---
 
@@ -110,21 +111,22 @@ $$X_{baru} \leftarrow \text{clip}(X_{baru}, 0, 1)$$
 
 ## 5. Formulasi Matematis & Fungsi Fitness
 
-Algoritma ChOA ditugaskan mencari vektor bobot $W = [w_{harga}, w_{kuota}, w_{masa\_aktif}, w_{jaringan}, w_{bonus}]$ yang meminimalkan simpangan terhadap profil bobot preferensi target ideal:
-$$W_{target} = [0.18, 0.25, 0.12, 0.35, 0.10]$$
+Algoritma ChOA ditugaskan mencari vektor bobot $W = [w_{\text{harga}}, w_{\text{kuota}}, w_{\text{masa\_aktif}}, w_{\text{jaringan}}, w_{\text{bonus}}]$ yang meminimalkan simpangan terhadap profil bobot preferensi target ideal:
+$$W_{\text{target}} = [0.18, 0.25, 0.12, 0.35, 0.10]$$
 
 ### a. Normalisasi Bobot L1 (Pembatas)
 Setiap koordinat posisi simpanse yang bernilai acak dikonversi menjadi bobot valid melalui normalisasi mutlak (sehingga total bobot selalu bernilai $1.0$):
 $$w_i = \frac{|x_i|}{\sum_{j=1}^{5} |x_j|}$$
 
 ### b. Perhitungan Nilai Kesalahan (Mean Squared Error - MSE)
-$$MSE(W) = \frac{1}{D} \sum_{i=1}^{D} (w_i - W_{target, i})^2$$
+$$MSE(W) = \frac{1}{D} \sum_{i=1}^{D} (w_i - W_{\text{target}, i})^2$$
 Di mana $D = 5$ (dimensi kriteria).
 
 ### c. Fungsi Fitness
 Fungsi fitness didesain berbanding terbalik dengan nilai *error* (MSE). Target optimasi adalah memaksimalkan nilai ini:
-$$Fitness(W) = \frac{1}{1 + MSE(W)}$$
+$$\text{Fitness}(W) = \frac{1}{1 + MSE(W)}$$
 * Nilai fitness maksimal adalah $1.0$ (tercapai jika MSE bernilai $0$, yang berarti kecocokan bobot 100% sempurna dengan target).
+
 
 ---
 
