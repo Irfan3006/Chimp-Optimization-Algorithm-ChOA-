@@ -65,20 +65,21 @@ Untuk menghilangkan perbedaan satuan dan skala antar kriteria, dilakukan normali
 
 ### a. Kriteria Harga (Cost - Minimisasi)
 Menggunakan rumus min-max invers agar nilai harga terendah mendapatkan skor normalisasi mendekati $1$, sedangkan harga tertinggi mendekati $0$:
-$$\text{Harga\_N}_i = 1 - \frac{\text{Harga}_i - \text{Harga}_{\min}}{\text{Harga}_{\max} - \text{Harga}_{\min}}$$
+$$\text{Harga}_{N, i} = 1 - \frac{\text{Harga}_i - \text{Harga}_{\min}}{\text{Harga}_{\max} - \text{Harga}_{\min}}$$
 
 ### b. Kriteria Kuota (Benefit - Maksimisasi)
 Menggunakan rumus min-max standar:
-$$\text{Kuota\_N}_i = \frac{\text{Kuota}_i - \text{Kuota}_{\min}}{\text{Kuota}_{\max} - \text{Kuota}_{\min}}$$
+$$\text{Kuota}_{N, i} = \frac{\text{Kuota}_i - \text{Kuota}_{\min}}{\text{Kuota}_{\max} - \text{Kuota}_{\min}}$$
 
 ### c. Kriteria Masa Aktif (Benefit)
 Normalisasi disesuaikan dengan nilai referensi batas atas (30 hari):
-$$\text{MasaAktif\_N}_i = \min\left(\frac{\text{MasaAktif}_i}{30}, 1.0\right)$$
+$$\text{MasaAktif}_{N, i} = \min\left(\frac{\text{MasaAktif}_i}{30}, 1.0\right)$$
 
 ### d. Kriteria Jaringan dan Bonus (Benefit)
 Karena menggunakan rating skala 1 hingga 10, normalisasi dilakukan dengan pembagian skala maksimum:
-$$\text{Jaringan\_N}_i = \frac{\text{Jaringan}_i}{10}$$
-$$\text{Bonus\_N}_i = \frac{\text{Bonus}_i}{10}$$
+$$\text{Jaringan}_{N, i} = \frac{\text{Jaringan}_i}{10}$$
+$$\text{Bonus}_{N, i} = \frac{\text{Bonus}_i}{10}$$
+
 
 
 ---
@@ -111,8 +112,9 @@ $$X_{baru} \leftarrow \text{clip}(X_{baru}, 0, 1)$$
 
 ## 5. Formulasi Matematis & Fungsi Fitness
 
-Algoritma ChOA ditugaskan mencari vektor bobot $W = [w_{\text{harga}}, w_{\text{kuota}}, w_{\text{masa\_aktif}}, w_{\text{jaringan}}, w_{\text{bonus}}]$ yang meminimalkan simpangan terhadap profil bobot preferensi target ideal:
+Algoritma ChOA ditugaskan mencari vektor bobot $W = [w_{\text{harga}}, w_{\text{kuota}}, w_{\text{masa aktif}}, w_{\text{jaringan}}, w_{\text{bonus}}]$ yang meminimalkan simpangan terhadap profil bobot preferensi target ideal:
 $$W_{\text{target}} = [0.18, 0.25, 0.12, 0.35, 0.10]$$
+
 
 ### a. Normalisasi Bobot L1 (Pembatas)
 Setiap koordinat posisi simpanse yang bernilai acak dikonversi menjadi bobot valid melalui normalisasi mutlak (sehingga total bobot selalu bernilai $1.0$):
