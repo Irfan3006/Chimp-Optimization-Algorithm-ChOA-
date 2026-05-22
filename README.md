@@ -61,26 +61,44 @@ Sistem mengevaluasi **12 alternatif paket internet** dari 6 provider berbeda (Te
 
 ## 3. Proses Normalisasi Data (Preprocessing)
 
-Untuk menghilangkan perbedaan satuan dan skala antar kriteria, dilakukan normalisasi ke dalam rentang $[0, 1]$ dengan rumus matematis sebagai berikut:
+Untuk menghilangkan perbedaan satuan dan skala antar kriteria, dilakukan normalisasi ke dalam rentang $[0, 1]$. 
+Misalkan $x_{j, i}$ menyatakan nilai mentah kriteria $j$ untuk alternatif paket $i$, dan $y_{j, i}$ menyatakan nilai hasil normalisasi ($j = 1, 2, 3, 4, 5$).
+
+Pembagian indeks kriteria $j$:
+* $j = 1$: Harga
+* $j = 2$: Kuota
+* $j = 3$: Masa Aktif
+* $j = 4$: Jaringan
+* $j = 5$: Bonus
+
+Rumus normalisasi kriteria secara matematis:
 
 ### a. Kriteria Harga (Cost - Minimisasi)
 Menggunakan rumus min-max invers agar nilai harga terendah mendapatkan skor normalisasi mendekati $1$, sedangkan harga tertinggi mendekati $0$:
-$$\text{Harga}_{N, i} = 1 - \frac{\text{Harga}_i - \text{Harga}_{\min}}{\text{Harga}_{\max} - \text{Harga}_{\min}}$$
+```math
+y_{1, i} = 1 - \frac{x_{1, i} - x_{1, \min}}{x_{1, \max} - x_{1, \min}}
+```
 
 ### b. Kriteria Kuota (Benefit - Maksimisasi)
 Menggunakan rumus min-max standar:
-$$\text{Kuota}_{N, i} = \frac{\text{Kuota}_i - \text{Kuota}_{\min}}{\text{Kuota}_{\max} - \text{Kuota}_{\min}}$$
+```math
+y_{2, i} = \frac{x_{2, i} - x_{2, \min}}{x_{2, \max} - x_{2, \min}}
+```
 
 ### c. Kriteria Masa Aktif (Benefit)
 Normalisasi disesuaikan dengan nilai referensi batas atas (30 hari):
-$$\text{MasaAktif}_{N, i} = \min\left(\frac{\text{MasaAktif}_i}{30}, 1.0\right)$$
+```math
+y_{3, i} = \min\left(\frac{x_{3, i}}{30}, 1.0\right)
+```
 
 ### d. Kriteria Jaringan dan Bonus (Benefit)
 Karena menggunakan rating skala 1 hingga 10, normalisasi dilakukan dengan pembagian skala maksimum:
-$$\text{Jaringan}_{N, i} = \frac{\text{Jaringan}_i}{10}$$
-$$\text{Bonus}_{N, i} = \frac{\text{Bonus}_i}{10}$$
-
-
+```math
+y_{4, i} = \frac{x_{4, i}}{10}
+```
+```math
+y_{5, i} = \frac{x_{5, i}}{10}
+```
 
 ---
 
@@ -96,38 +114,59 @@ $$\text{Bonus}_{N, i} = \frac{\text{Bonus}_i}{10}$$
 ### Pembaruan Posisi (Matematika Algoritma)
 Dalam implementasi program ini, pergerakan simpanse didorong oleh kombinasi acak dari keempat kepemimpinan tersebut:
 
-$$X_{baru} = \frac{r_1 \cdot X_{Attacker} + r_2 \cdot X_{Barrier} + r_3 \cdot X_{Chaser} + r_4 \cdot X_{Driver}}{r_1 + r_2 + r_3 + r_4}$$
+```math
+X_{\text{baru}} = \frac{r_1 X_{\text{Attacker}} + r_2 X_{\text{Barrier}} + r_3 X_{\text{Chaser}} + r_4 X_{\text{Driver}}}{r_1 + r_2 + r_3 + r_4}
+```
 
 Di mana:
 * $r_1, r_2, r_3, r_4 \sim U(0, 1)$ adalah angka acak uniform yang menentukan kontribusi relatif dari masing-masing pemimpin.
-* $X_{Attacker}, X_{Barrier}, X_{Chaser}, X_{Driver}$ adalah vektor posisi dari 4 simpanse terbaik pada iterasi saat ini.
+* $X_{\text{Attacker}}, X_{\text{Barrier}}, X_{\text{Chaser}}, X_{\text{Driver}}$ adalah vektor posisi dari 4 simpanse terbaik pada iterasi saat ini.
 
 Untuk meningkatkan kemampuan eksplorasi global (*diversification*) dan menghindari jebakan optimum lokal (*local optima trapping*), ditambahkan perturbasi acak berbasis distribusi Gaussian:
-$$X_{baru} \leftarrow X_{baru} + \mathcal{N}(0, 0.02^2)$$
+```math
+X_{\text{baru}} \leftarrow X_{\text{baru}} + \mathcal{N}(0, 0.02^2)
+```
 
 Terakhir, vektor posisi baru dilakukan pemangkasan batas (*clipping*) agar tetap berada dalam ruang pencarian valid:
-$$X_{baru} \leftarrow \text{clip}(X_{baru}, 0, 1)$$
+```math
+X_{\text{baru}} \leftarrow \text{clip}(X_{\text{baru}}, 0, 1)
+```
 
 ---
 
 ## 5. Formulasi Matematis & Fungsi Fitness
 
-Algoritma ChOA ditugaskan mencari vektor bobot $W = [w_{\text{harga}}, w_{\text{kuota}}, w_{\text{masa aktif}}, w_{\text{jaringan}}, w_{\text{bonus}}]$ yang meminimalkan simpangan terhadap profil bobot preferensi target ideal:
-$$W_{\text{target}} = [0.18, 0.25, 0.12, 0.35, 0.10]$$
-
+Algoritma ChOA ditugaskan mencari vektor bobot $W = [w_1, w_2, w_3, w_4, w_5]$ yang meminimalkan simpangan terhadap profil bobot preferensi target ideal:
+```math
+W_{\text{target}} = [0.18, 0.25, 0.12, 0.35, 0.10]
+```
 
 ### a. Normalisasi Bobot L1 (Pembatas)
 Setiap koordinat posisi simpanse yang bernilai acak dikonversi menjadi bobot valid melalui normalisasi mutlak (sehingga total bobot selalu bernilai $1.0$):
-$$w_i = \frac{|x_i|}{\sum_{j=1}^{5} |x_j|}$$
+```math
+w_i = \frac{|x_i|}{\sum_{j=1}^{5} |x_j|}
+```
 
 ### b. Perhitungan Nilai Kesalahan (Mean Squared Error - MSE)
-$$MSE(W) = \frac{1}{D} \sum_{i=1}^{D} (w_i - W_{\text{target}, i})^2$$
+```math
+MSE(W) = \frac{1}{D} \sum_{i=1}^{D} (w_i - W_{\text{target}, i})^2
+```
 Di mana $D = 5$ (dimensi kriteria).
 
 ### c. Fungsi Fitness
 Fungsi fitness didesain berbanding terbalik dengan nilai *error* (MSE). Target optimasi adalah memaksimalkan nilai ini:
-$$\text{Fitness}(W) = \frac{1}{1 + MSE(W)}$$
+```math
+\text{Fitness}(W) = \frac{1}{1 + MSE(W)}
+```
 * Nilai fitness maksimal adalah $1.0$ (tercapai jika MSE bernilai $0$, yang berarti kecocokan bobot 100% sempurna dengan target).
+
+### d. Perhitungan Skor Akhir Alternatif
+Setelah bobot optimal $W^* = [w^*_1, w^*_2, w^*_3, w^*_4, w^*_5]$ diperoleh dari ChOA, skor kelayakan untuk setiap alternatif paket internet $i$ dihitung menggunakan penjumlahan terbobot (*weighted sum*):
+```math
+\text{Skor}_i = \sum_{j=1}^{5} (y_{j, i} \times w^*_j)
+```
+Alternatif kemudian diurutkan berdasarkan nilai $\text{Skor}_i$ secara menurun untuk menghasilkan perankingan dari yang paling direkomendasikan.
+
 
 
 ---
